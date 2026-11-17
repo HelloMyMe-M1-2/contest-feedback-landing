@@ -52,7 +52,7 @@ PostHog는 웹페이지에서 일어난 행동을 **기록하고 그래프로 �
 
 ## 자료와 접근 방법
 
-- [GitHub 저장소](https://github.com/HelloMyMe-M1-2/contest-feedback-landing): 코드와 문서가 있는 비공개 공간입니다. 초대를 수락해야 볼 수 있습니다.
+- [GitHub 저장소](https://github.com/HelloMyMe-M1-2/contest-feedback-landing): 누구나 코드와 문서를 볼 수 있는 공개 공간입니다. 저장소에 직접 수정 사항을 올리려면 별도 권한이 필요합니다.
 - [프로젝트 첫 안내](../README.md): 현재 상태와 문서 목록을 볼 수 있습니다.
 - [실험 정리](experiment.md): 실험 목적과 정해야 할 사항을 볼 수 있습니다.
 - [PostHog 처음 사용하기](posthog-guide.md): 측정 도구와 로컬 테스트를 더 자세히 설명합니다.
