@@ -36,11 +36,11 @@ export function ExamplePreview({ onSelect, onExposed }: Props) {
   return (
     <section className="example-section section-wrap" id="example" aria-labelledby="examples-title">
       <div className="example-heading">
-        <div><p className="section-kicker">피드백은 이렇게 보여요</p><h2 id="examples-title">어디를, 왜 살펴봐야 하는지<br />함께 확인해요.</h2></div>
+        <div><h2 id="examples-title">어디를, 왜 살펴봐야 하는지<br />함께 확인해요.</h2></div>
         <p>막연한 평가 대신 기획안에서 확인할 부분과 그 이유, 점검 기준을 함께 보여주는 리포트를 구상하고 있어요.</p>
       </div>
       <div className="report-shell">
-        <div className="report-top"><div><span className="report-icon" aria-hidden="true">✳</span><span>피드백 미리보기</span></div><span className="sample-badge">가상 예시</span></div>
+        <div className="report-top"><div><span>피드백 미리보기</span></div><span className="sample-badge">가상 예시</span></div>
         <div className="choices" aria-label="예시 선택">
           {(Object.keys(examples) as ExampleId[]).map((id) => (
             <button key={id} type="button" aria-pressed={selected === id} onClick={() => { setSelected(id); onSelect(id) }}>
@@ -49,10 +49,10 @@ export function ExamplePreview({ onSelect, onExposed }: Props) {
           ))}
         </div>
         <article className="report-content" ref={exampleRef} aria-live="polite">
-          <div className="report-intro"><div><span className="report-overline">FEEDBACK POINT</span><h3>{example.label}</h3></div><span className="report-number">SAMPLE</span></div>
+          <div className="report-intro"><h3>{example.label}</h3></div>
           <div className="report-quote"><span>기획안 문장</span><p>“{example.quote}”</p></div>
-          <div className="report-row"><span className="row-index">01</span><div><h4>확인할 부분</h4><p>{example.feedback}</p></div></div>
-          <div className="report-row"><span className="row-index">02</span><div><h4>왜 확인할까요?</h4><p>{example.reason}</p></div></div>
+          <div className="report-row"><div><h4>확인할 부분</h4><p>{example.feedback}</p></div></div>
+          <div className="report-row"><div><h4>왜 확인할까요?</h4><p>{example.reason}</p></div></div>
           <div className="report-basis"><span>참고한 점검 기준</span><p>{example.basis}</p></div>
         </article>
         <p className="sample-disclaimer">위 내용은 이해를 돕기 위한 가상 예시이며, 실제 분석이나 심사 의견이 아닙니다.</p>

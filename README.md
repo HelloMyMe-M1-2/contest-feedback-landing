@@ -152,6 +152,8 @@ npm run preview # 빌드 후 결과를 로컬에서 확인
 | PostHog의 기본 개념과 테스트 | [PostHog 처음 사용하기](docs/posthog-guide.md) |
 | 무엇을 어떤 기준으로 측정하는지 | [이벤트 명세](docs/events.md) |
 | 화면이나 PostHog 요구사항이 바뀔 때 | [측정 변경 안내](docs/measurement-change-guide.md) |
+| 팀 검토용 디자인 기준 | [디자인 기준 초안](docs/design-system.md) |
+| 디자인 도구 선택과 변경 근거 | [디자인 검토 기록](docs/design-review-2026-11-17.md) |
 | 기술과 배포 연결 | [기술·배포 아키텍처](docs/technical-architecture.md) |
 | 시스템과 내부 책임을 단계별로 보기 | [C4 아키텍처](docs/c4-architecture.md) |
 | 전체 구조와 개인정보 검토 사항 | [아키텍처 초안](docs/architecture.md) |

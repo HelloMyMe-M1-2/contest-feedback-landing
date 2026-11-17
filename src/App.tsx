@@ -60,49 +60,43 @@ export default function App({ testSink }: { testSink?: EventSink }) {
       <div data-analytics-content>
         <header className="site-header">
           <a className="brand" href="#top" aria-label="다음장 페이지 처음으로">
-            <span className="brand-mark" aria-hidden="true">ㄷ</span>
             <span>다음장<span className="brand-dot">.</span></span>
           </a>
-          <a className="header-link" href="#example">피드백 예시 보기 <span aria-hidden="true">↗</span></a>
+          <a className="header-link" href="#example">피드백 예시 보기 <span aria-hidden="true">↓</span></a>
         </header>
 
         <section className="hero section-wrap" id="top" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <span className="eyebrow"><span className="eyebrow-dot" /> 공모전 기획안을 위한 피드백</span>
-            <h1 id="hero-title">제출 전, 내 기획안을<br /><span>한 번 더 살펴볼 시간.</span></h1>
-            <p className="hero-description">열심히 완성한 기획안. 놓친 부분은 없는지, 근거는 충분한지 함께 살펴볼 수 있는 피드백을 준비하고 있어요.</p>
-            <a className="primary-link" href="#example">피드백 예시 살펴보기 <span aria-hidden="true">↗</span></a>
+            <h1 id="hero-title">공모전 기획안,<br />놓친 부분은 <span>없을까요?</span></h1>
+            <p className="hero-description">제출 전 기획안에서 살펴볼 부분과 그 이유를 점검 기준과 함께 보여주는 피드백 리포트를 준비하고 있어요.</p>
+            <a className="primary-link" href="#example">피드백 예시 살펴보기 <span aria-hidden="true">↓</span></a>
             <p className="hero-note">현재 서비스는 준비 중이며, 아래 내용은 가상의 예시입니다.</p>
           </div>
           <div className="hero-visual" aria-label="기획안을 살펴보는 세 가지 질문">
             <div className="paper">
-              <div className="paper-top"><span>BEFORE SUBMIT</span><span>01 — 03</span></div>
-              <p className="paper-label">제출 전 체크</p>
-              <p className="paper-title">좋은 아이디어를<br />더 설득력 있게.</p>
+              <div className="paper-top"><span>기획안 점검 노트</span><span>예시</span></div>
+              <p className="paper-title">제출 전, 이런 질문을<br />살펴볼 수 있어요</p>
               <div className="paper-rule" />
               <div className="paper-question"><span>01</span><p>문제와 대상이 명확한가요?</p></div>
               <div className="paper-question"><span>02</span><p>주장을 뒷받침할 근거가 있나요?</p></div>
               <div className="paper-question"><span>03</span><p>실행 과정을 그려볼 수 있나요?</p></div>
-              <div className="paper-bottom"><span>YOUR NEXT DRAFT</span><span>↗</span></div>
             </div>
-            <span className="visual-caption">아이디어를 조금 더 단단하게 만드는 질문</span>
           </div>
         </section>
 
-        <div className="section-divider section-wrap"><span>01 / SAMPLE REPORT</span><span>가상의 피드백 예시</span></div>
+        <div className="section-divider section-wrap"><span>피드백 리포트</span><span>가상의 예시</span></div>
         <ExamplePreview onSelect={onSelect} onExposed={onExposed} />
         <section className="offer section-wrap" ref={offerRef} aria-labelledby="purchase-title">
           <div className="offer-inner">
             <div>
-              <span className="offer-label">BEFORE YOUR NEXT DRAFT</span>
-              <h2 id="purchase-title">더 나은 기획안을 위한<br />다음 단계를 준비하고 있어요.</h2>
+              <h2 id="purchase-title">제출 전 피드백,<br />차근차근 준비하고 있어요.</h2>
               <p>가격과 제공 범위는 아직 정해지지 않았습니다.<br />서비스와 결제 기능은 현재 준비 중입니다.</p>
             </div>
             <div className="offer-action">
               <button className="purchase-button" type="button" onClick={() => {
                 tracker.track('purchase_clicked', { offer_id: 'unconfigured', offer_version: '1', price_status: 'not_set' })
                 setNoticeVisible(true)
-              }}>구매하기 <span aria-hidden="true">↗</span></button>
+              }}>구매하기 <span aria-hidden="true">→</span></button>
               <span>실제 결제는 진행되지 않습니다.</span>
             </div>
           </div>
