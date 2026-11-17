@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readCampaign } from '../src/analytics/campaign.ts'
 import { createTracker } from '../src/analytics/tracker.ts'
-import { shouldEnableLab } from '../src/analytics/lab.ts'
+import { shouldEnableLab, shouldShowLabViewer } from '../src/analytics/lab.ts'
+import { isLabMessage, openLabChannel } from '../src/analytics/labChannel.ts'
 import { createVisitClock } from '../src/analytics/visitClock.ts'
 import { canSendPosthogTest, filterPosthogTestEvent, testEventProperties } from '../src/analytics/posthogTestPolicy.ts'
 import { classifyDevice, newlyReachedDepths } from '../src/analytics/pageMetrics.ts'
@@ -54,12 +55,47 @@ test('측정 도구가 실패해도 구매 클릭 이후의 화면 동작을 막
   assert.equal(warnings[0].includes('simulated failure'), false)
 })
 
-test('실습장은 개발 환경과 로컬 주소와 명시적 옵션이 모두 있어야 열린다', () => {
+test('랜딩 테스트 기록은 개발 환경과 로컬 주소와 명시적 옵션이 모두 있어야 켜진다', () => {
   assert.equal(shouldEnableLab(true, '127.0.0.1', '?analytics_lab=1'), true)
   assert.equal(shouldEnableLab(true, 'localhost', '?analytics_lab=1'), true)
   assert.equal(shouldEnableLab(false, 'localhost', '?analytics_lab=1'), false)
   assert.equal(shouldEnableLab(true, 'example.com', '?analytics_lab=1'), false)
   assert.equal(shouldEnableLab(true, 'localhost', ''), false)
+})
+
+test('별도 실습장은 개발 환경의 로컬 전용 경로에서만 열린다', () => {
+  assert.equal(shouldShowLabViewer(true, '127.0.0.1', '/__analytics'), true)
+  assert.equal(shouldShowLabViewer(true, 'localhost', '/__analytics'), true)
+  assert.equal(shouldShowLabViewer(false, 'localhost', '/__analytics'), false)
+  assert.equal(shouldShowLabViewer(true, 'example.com', '/__analytics'), false)
+  assert.equal(shouldShowLabViewer(true, 'localhost', '/'), false)
+})
+
+test('로컬 실습장과 랜딩 탭 사이에 이벤트가 전달된다', async () => {
+  const receiver = openLabChannel()
+  const sender = openLabChannel()
+  assert.ok(receiver)
+  assert.ok(sender)
+  let timer
+  try {
+    const received = new Promise((resolve, reject) => {
+      timer = setTimeout(() => reject(new Error('로컬 이벤트 수신 시간 초과')), 2000)
+      receiver.addEventListener('message', (message) => resolve(message.data), { once: true })
+    })
+    const events = []
+    createTracker(readCampaign(''), { send: (event) => events.push(event) }, { pageViewId: 'lab-page', deviceCategory: 'desktop' }).track('landing_viewed', {})
+    sender.postMessage({ type: 'event', event: events[0], posthogTestEnabled: false })
+    const value = await received
+    assert.equal(isLabMessage(value), true)
+    assert.equal(value.event.event_name, 'landing_viewed')
+    assert.equal(value.event.page_view_id, 'lab-page')
+    assert.equal(value.posthogTestEnabled, false)
+    assert.equal(isLabMessage({ type: 'wrong' }), false)
+  } finally {
+    clearTimeout(timer)
+    receiver.close()
+    sender.close()
+  }
 })
 
 test('경과 시간과 탭이 표시된 시간을 구분하며 탭 전환을 누적한다', () => {

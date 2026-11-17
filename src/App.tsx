@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AnalyticsLab } from './components/AnalyticsLab'
 import { ExamplePreview } from './components/ExamplePreview'
 import { readCampaign } from './analytics/campaign'
 import { createTracker, disabledSink } from './analytics/tracker'
 import { useExposure } from './analytics/useExposure'
 import { shouldEnableLab } from './analytics/lab'
+import { openLabChannel } from './analytics/labChannel'
 import { classifyDevice } from './analytics/pageMetrics'
 import { usePageMetrics } from './analytics/usePageMetrics'
-import type { AnalyticsEvent, ExampleId } from './analytics/contracts'
+import type { ExampleId } from './analytics/contracts'
 import type { EventSink } from './analytics/tracker'
 
 /** 팀의 디자인이 정해지기 전, 기능을 확인하기 위한 최소 화면입니다. */
 export default function App({ testSink }: { testSink?: EventSink }) {
   const [noticeVisible, setNoticeVisible] = useState(false)
-  const [events, setEvents] = useState<AnalyticsEvent[]>([])
+  const labChannel = useRef<BroadcastChannel | null>(null)
   const offerRef = useRef<HTMLElement>(null)
   const pageViewed = useRef(false)
   const campaign = useMemo(() => readCampaign(window.location.search), [])
@@ -21,12 +21,26 @@ export default function App({ testSink }: { testSink?: EventSink }) {
   const context = useMemo(() => ({ pageViewId: labEnabled ? crypto.randomUUID() : 'disabled', deviceCategory: labEnabled ? classifyDevice(navigator.userAgent) : 'unknown' as const }), [labEnabled])
   const sink = useMemo<EventSink>(() => labEnabled ? {
     send: (event) => {
-      setEvents((current) => [...current, event].slice(-100))
+      // 별도 실습장이 닫혔거나 탭 간 전달이 실패해도 PostHog 테스트와 화면은 계속 동작합니다.
+      try {
+        labChannel.current?.postMessage({ type: 'event', event, posthogTestEnabled: Boolean(testSink) })
+      } catch {
+        console.warn('로컬 실습장으로 이벤트를 전달하지 못했습니다.')
+      }
       testSink?.send(event)
     },
   } : disabledSink, [labEnabled, testSink])
   const tracker = useMemo(() => createTracker(campaign, sink, context), [campaign, sink, context])
 
+  useEffect(() => {
+    if (!labEnabled) return
+    const channel = openLabChannel()
+    labChannel.current = channel
+    return () => {
+      labChannel.current = null
+      channel?.close()
+    }
+  }, [labEnabled])
   useEffect(() => {
     if (!pageViewed.current) {
       pageViewed.current = true
@@ -96,7 +110,6 @@ export default function App({ testSink }: { testSink?: EventSink }) {
         </section>
         <footer className="site-footer section-wrap"><span className="footer-brand">다음장<span>.</span></span><p>제출 전, 한 번 더 생각해보는 시간.</p><small>서비스 준비 중 · 본 화면은 테스트용 시안입니다.</small></footer>
       </div>
-      {labEnabled && <AnalyticsLab events={events} onClear={() => setEvents([])} posthogTestEnabled={Boolean(testSink)} />}
     </main>
   )
 }

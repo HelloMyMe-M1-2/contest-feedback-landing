@@ -21,7 +21,7 @@ export function usePageMetrics(enabled: boolean, track: Track) {
     const updateDepth = () => {
       if (document.visibilityState !== 'visible') return
       // 구매 영역의 위치가 아니라 실제 콘텐츠를 감싼 영역의 끝을 사용합니다.
-      // 실습장은 이 영역 밖에 두므로 스크롤 깊이에 포함되지 않습니다.
+      // 실습장은 별도 화면이므로 스크롤 깊이에 포함되지 않습니다.
       const content = document.querySelector('[data-analytics-content]')
       if (!content) return
       const pageEnd = content.getBoundingClientRect().bottom + window.scrollY

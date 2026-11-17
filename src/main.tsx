@@ -2,9 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import type { EventSink } from './analytics/tracker'
+import { shouldShowLabViewer } from './analytics/lab'
 import './styles.css'
 
 async function start() {
+  if (import.meta.env.DEV && shouldShowLabViewer(true, window.location.hostname, window.location.pathname)) {
+    const { AnalyticsLab } = await import('./components/AnalyticsLab')
+    createRoot(document.getElementById('root')!).render(<StrictMode><AnalyticsLab /></StrictMode>)
+    return
+  }
   let testSink: EventSink | undefined
   if (import.meta.env.DEV) {
     try {
