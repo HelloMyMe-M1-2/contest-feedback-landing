@@ -4,6 +4,8 @@ import { readCampaign } from '../src/analytics/campaign.ts'
 import { createTracker } from '../src/analytics/tracker.ts'
 import { shouldEnableLab } from '../src/analytics/lab.ts'
 import { createVisitClock } from '../src/analytics/visitClock.ts'
+import { canSendPosthogTest, filterPosthogTestEvent, testEventProperties } from '../src/analytics/posthogTestPolicy.ts'
+import { classifyDevice, newlyReachedDepths } from '../src/analytics/pageMetrics.ts'
 
 test('게시글 식별자와 유입 매개변수를 분리하고 소문자로 기록한다', () => {
   assert.deepEqual(readCampaign('?utm_source=Linkareer&utm_medium=post&utm_campaign=Test_01&utm_content=post_001'), {
@@ -20,17 +22,36 @@ test('누락되거나 이메일·공백처럼 허용하지 않는 값은 unknown
 test('선택한 예시는 지정된 수집기에만 전달되며 캠페인과 스키마를 포함한다', () => {
   const events = []
   const campaign = readCampaign('?utm_content=post_001')
-  const tracker = createTracker(campaign, { send: (event) => events.push(event) })
-  tracker.track('example_selected', { example_id: 'problem' })
+  const tracker = createTracker(campaign, { send: (event) => events.push(event) }, { pageViewId: 'page-1', deviceCategory: 'mobile' })
+  tracker.track('example_selected', { example_id: 'problem', example_version: '1' })
   assert.equal(events.length, 1)
   assert.equal(events[0].event_name, 'example_selected')
   assert.equal(events[0].campaign.post_id, 'post_001')
   assert.equal(events[0].properties.example_id, 'problem')
-  assert.equal(events[0].event_schema_version, '1')
+  assert.equal(events[0].event_schema_version, '2')
+  assert.equal(events[0].page_view_id, 'page-1')
+  assert.equal(events[0].device_category, 'mobile')
 })
 
 test('기본 수집기는 이벤트를 외부로 보내지 않는다', () => {
   assert.doesNotThrow(() => createTracker(readCampaign('')).track('landing_viewed', {}))
+})
+
+test('측정 도구가 실패해도 구매 클릭 이후의 화면 동작을 막지 않는다', () => {
+  const tracker = createTracker(readCampaign(''), { send() { throw new Error('simulated failure') } })
+  let noticeVisible = false
+  const originalWarn = console.warn
+  const warnings = []
+  console.warn = (message) => warnings.push(message)
+  try {
+    tracker.track('purchase_clicked', { offer_id: 'unconfigured', offer_version: '1', price_status: 'not_set' })
+    noticeVisible = true
+  } finally {
+    console.warn = originalWarn
+  }
+  assert.equal(noticeVisible, true)
+  assert.equal(warnings.length, 1)
+  assert.equal(warnings[0].includes('simulated failure'), false)
 })
 
 test('실습장은 개발 환경과 로컬 주소와 명시적 옵션이 모두 있어야 열린다', () => {
@@ -57,4 +78,63 @@ test('숨겨진 상태에서 시작하면 표시될 때부터 시간을 센다',
   const clock = createVisitClock(1000, false)
   clock.setVisible(true, 4000)
   assert.deepEqual(clock.snapshot(6000), { elapsedMs: 5000, visibleMs: 2000 })
+})
+
+test('PostHog 테스트는 개발 환경의 로컬 주소, 두 옵션, 토큰과 공식 호스트가 모두 필요하다', () => {
+  const args = [true, 'localhost', '?analytics_lab=1&posthog_test=1', 'phc_test123', 'https://us.i.posthog.com']
+  assert.equal(canSendPosthogTest(...args), true)
+  for (const [index, value] of [[0, false], [1, 'example.com'], [2, '?analytics_lab=1'], [3, ''], [4, 'https://example.com']]) {
+    const invalid = [...args]
+    invalid[index] = value
+    assert.equal(canSendPosthogTest(...invalid), false)
+  }
+})
+
+test('PostHog 테스트에서는 실제 유입 값을 보내지 않고 불필요한 SDK 속성과 이벤트를 제거한다', () => {
+  const properties = testEventProperties({ event_name: 'example_selected', properties: { example_id: 'problem', example_version: '1' }, campaign: { post_id: 'actual', utm_source: 'actual', utm_medium: 'actual', utm_campaign: 'actual' }, page_view_id: 'page-1', device_category: 'mobile', occurred_at: '2026-01-01', event_schema_version: '2' })
+  assert.equal(properties.post_id, 'test_unknown')
+  const clean = filterPosthogTestEvent({ event: 'example_selected', properties: { ...properties, token: 'phc_test', distinct_id: 'id', price_status: 'specified', $current_url: 'https://example.com/private', $referrer: 'private' }, $set_once: { secret: 'private' } })
+  assert.equal(clean.properties.example_id, 'problem')
+  assert.equal(clean.properties.token, 'phc_test')
+  assert.equal(clean.properties.$current_url, undefined)
+  assert.equal(clean.properties.price_status, undefined) // 다른 이벤트에서만 허용하는 속성
+  assert.equal(clean.properties.$geoip_disable, true)
+  assert.equal(clean.$set_once, undefined)
+  assert.equal(filterPosthogTestEvent({ event: '$autocapture', properties: {} }), null)
+  assert.equal(filterPosthogTestEvent({ event: 'registration_completed', properties: {} }), null)
+  assert.equal(filterPosthogTestEvent({ event: '__proto__', properties: {} }), null)
+})
+
+test('연습용 게시글 두 개만 고정된 테스트 식별자로 구분한다', () => {
+  const events = []
+  for (const postId of ['post_001', 'post_002', 'person_name']) {
+    const tracker = createTracker(readCampaign(`?utm_content=${postId}`), { send: (event) => events.push(testEventProperties(event)) }, { pageViewId: 'page-1', deviceCategory: 'unknown' })
+    tracker.track('landing_viewed', {})
+  }
+  assert.deepEqual(events.map((event) => event.post_id), ['test_post_001', 'test_post_002', 'test_unknown'])
+})
+
+test('스크롤은 새로 도달한 구간만 기록하고, 한 화면에 전부 보이는 페이지는 100%까지 도달한다', () => {
+  const reached = new Set()
+  assert.deepEqual(newlyReachedDepths(0, 300, 1200, reached), [25])
+  assert.deepEqual(newlyReachedDepths(600, 300, 1200, reached), [50, 75])
+  assert.deepEqual(newlyReachedDepths(300, 300, 1200, reached), [])
+  assert.deepEqual(newlyReachedDepths(900, 300, 1200, reached), [100])
+  assert.deepEqual(newlyReachedDepths(0, 800, 600, new Set()), [25, 50, 75, 100])
+})
+
+test('기기 분류는 원본 정보를 보내지 않고 불확실한 기기는 unknown으로 남긴다', () => {
+  assert.equal(classifyDevice('Mozilla iPhone'), 'mobile')
+  assert.equal(classifyDevice('Mozilla iPad'), 'other')
+  assert.equal(classifyDevice('Mozilla Windows NT'), 'desktop')
+  assert.equal(classifyDevice('unrecognized'), 'unknown')
+})
+
+test('테스트 수집기에 시간 누적값과 페이지 방문 ID가 보존된다', () => {
+  const props = testEventProperties({ event_name: 'visibility_checkpoint', properties: { visible_ms: 12000, elapsed_ms: 20000, click_count: 2, sequence: 1, trigger: 'hidden' }, campaign: readCampaign(''), page_view_id: 'page-2', device_category: 'desktop', occurred_at: '2026-01-01', event_schema_version: '2' })
+  const event = filterPosthogTestEvent({ event: 'visibility_checkpoint', properties: { ...props, token: 'phc_test', distinct_id: 'id' } })
+  assert.equal(event.properties.visible_ms, 12000)
+  assert.equal(event.properties.elapsed_ms, 20000)
+  assert.equal(event.properties.click_count, 2)
+  assert.equal(event.properties.page_view_id, 'page-2')
 })
