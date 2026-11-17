@@ -1,0 +1,13 @@
+/* 기능 확인을 위한 기본 스타일입니다. 최종 디자인은 팀 확정 후 반영합니다. */
+:root { font-family: system-ui, sans-serif; color: #222; background: #fff; line-height: 1.65; }
+body { margin: 0; }
+main { max-width: 760px; margin: auto; padding: 2rem 1.25rem 4rem; }
+section { margin-top: 3rem; }
+article { padding: 1rem; border: 1px solid #999; }
+.choices { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+button { font: inherit; padding: .5rem .8rem; cursor: pointer; }
+button[aria-pressed="true"] { font-weight: 700; outline: 2px solid currentColor; }
+button:focus-visible { outline: 3px solid #1748a0; outline-offset: 2px; }
+
+.analytics-lab { margin-top: 4rem; border-top: 2px solid #555; padding-top: 1rem; overflow-wrap: anywhere; }
+.analytics-lab pre { white-space: pre-wrap; font-size: 0.85rem; }
