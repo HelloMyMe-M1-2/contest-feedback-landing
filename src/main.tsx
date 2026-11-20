@@ -1,9 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
+import App from './plancheck/Prototype'
 import type { EventSink } from './analytics/tracker'
 import { shouldShowLabViewer } from './analytics/lab'
-import './styles.css'
+
 
 async function start() {
   if (import.meta.env.DEV && shouldShowLabViewer(true, window.location.hostname, window.location.pathname)) {
@@ -21,7 +21,7 @@ async function start() {
       console.warn('PostHog 테스트를 시작하지 못했습니다. 화면은 계속 사용할 수 있습니다.')
     }
   }
-  createRoot(document.getElementById('root')!).render(<StrictMode><App testSink={testSink} /></StrictMode>)
+  createRoot(document.getElementById('root')!).render(<App testSink={testSink} />)
 }
 
 void start()

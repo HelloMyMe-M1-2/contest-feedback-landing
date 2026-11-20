@@ -1,3 +1,4 @@
+import '../styles.css'
 import { useEffect, useState } from 'react'
 import { isLabMessage, openLabChannel } from '../analytics/labChannel'
 import type { LabMessage } from '../analytics/labChannel'

@@ -3,13 +3,16 @@ import type { AnalyticsEvent, EventProperties } from './contracts'
 // 새 이벤트가 계약에 추가되면 테스트 전송 허용 여부를 명시적으로 결정해야 합니다.
 const testEvents = {
   landing_viewed: true,
+  sample_report_viewed: true,
+  sample_interacted: true,
+  cta_clicked: true,
   example_exposed: true,
   example_selected: true,
   purchase_offer_viewed: true,
   purchase_clicked: true,
   availability_notice_viewed: true,
-  registration_started: false,
-  registration_completed: false,
+  registration_started: true,
+  registration_completed: true,
   scroll_depth_reached: true,
   visibility_checkpoint: true,
 } satisfies Record<keyof EventProperties, boolean>
@@ -18,13 +21,16 @@ const testEvents = {
 type TestPropertyDecisions = { [K in keyof EventProperties]: { [P in keyof EventProperties[K]]: boolean } }
 const testPropertyDecisions = {
   landing_viewed: {},
+  sample_report_viewed: { sample_version: true },
+  sample_interacted: { action: true, section_id: true },
+  cta_clicked: { target: true, location: true },
   example_exposed: { example_id: true, example_version: true },
   example_selected: { example_id: true, example_version: true },
   purchase_offer_viewed: { offer_id: true, offer_version: true, price_status: true },
   purchase_clicked: { offer_id: true, offer_version: true, price_status: true },
   availability_notice_viewed: { notice_version: true },
-  registration_started: { form_version: false },
-  registration_completed: { form_version: false, result: false },
+  registration_started: { form_version: true },
+  registration_completed: { form_version: true, result: true },
   scroll_depth_reached: { depth: true },
   visibility_checkpoint: { visible_ms: true, elapsed_ms: true, click_count: true, sequence: true, trigger: true },
 } satisfies TestPropertyDecisions

@@ -2,6 +2,9 @@
 export type ExampleId = 'problem' | 'operation' | 'effect'
 export type EventProperties = {
   landing_viewed: Record<string, never>
+  sample_report_viewed: { sample_version: string }
+  sample_interacted: { action: 'expand' | 'zoom' | 'section'; section_id: 'overview' | 'criteria' | 'strengths' | 'basic' | 'weaknesses' | 'questions' | 'deep' | 'none' }
+  cta_clicked: { target: 'sample' | 'signup'; location: 'header' | 'drawer' | 'hero' | 'how' | 'toc' | 'after-sample' | 'mbar' }
   example_exposed: { example_id: ExampleId; example_version: string }
   example_selected: { example_id: ExampleId; example_version: string }
   purchase_offer_viewed: { offer_id: string; offer_version: string; price_status: 'not_set' | 'specified' }

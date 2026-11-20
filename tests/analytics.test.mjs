@@ -137,7 +137,12 @@ test('PostHog 테스트에서는 실제 유입 값을 보내지 않고 불필요
   assert.equal(clean.properties.$geoip_disable, true)
   assert.equal(clean.$set_once, undefined)
   assert.equal(filterPosthogTestEvent({ event: '$autocapture', properties: {} }), null)
-  assert.equal(filterPosthogTestEvent({ event: 'registration_completed', properties: {} }), null)
+  const signup = filterPosthogTestEvent({ event: 'registration_completed', properties: { form_version: '1', result: 'new', email: 'person@example.com' } })
+  assert.equal(signup.properties.result, 'new')
+  assert.equal(signup.properties.email, undefined)
+  const sample = filterPosthogTestEvent({ event: 'sample_interacted', properties: { action: 'section', section_id: 'criteria', text: 'private' } })
+  assert.equal(sample.properties.section_id, 'criteria')
+  assert.equal(sample.properties.text, undefined)
   assert.equal(filterPosthogTestEvent({ event: '__proto__', properties: {} }), null)
 })
 
