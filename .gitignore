@@ -5,3 +5,8 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+# Cloudflare local secrets and state
+.dev.vars
+.dev.vars.*
+.wrangler/
