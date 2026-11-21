@@ -11,12 +11,14 @@
 | PostHog 신청 테스트 | 로컬 가상 신청의 시작·완료 이벤트 도착 확인 | `test_environment: local` 테스트 기록. 실제 참가자 측정은 꺼져 있음 |
 | Cloudflare 진단 | 로컬 실행기에서 외부 요청 오류 조사. 가짜 응답을 사용한 함수 처리 확인 | 실제 Google 통신의 원인과 Cloudflare 배포 환경 결과는 미검증 |
 | 2026-11-21 테스트 배포 | GitHub 저장소를 Cloudflare Pages와 연결. 의존성 설치 문제를 수정해 공개 테스트 화면 배포 | `main` 푸시 시 자동 배포. 시트 연결 설정 전이라 테스트 화면의 신청은 저장되지 않음 |
-| 팀 문서 정리 | 이전 시안과 현재 시안의 차이를 반영하고 팀 안내·실험·아키텍처 문서를 정리 | 다음 단계는 PostHog와 이메일의 실제 배포 환경 연결·검증 |
+| 팀 문서 정리 | 이전 시안과 현재 시안의 차이를 반영하고 팀 안내·실험·아키텍처 문서를 정리 | 이후 PostHog와 이메일의 배포 환경 연결을 가상 데이터로 검증 |
+
+| 2026-11-21 배포 연결 검증 | Cloudflare → Apps Script → 시트 가상 신청 성공, PostHog 배포 테스트 이벤트 수신 확인 | 테스트 행 삭제, Apps Script 접근 제한 및 Cloudflare 신청 설정 제거. 실제 실험은 시작하지 않음 |
 
 ## 지금 사용할 링크
 
 - [테스트 화면](https://contest-feedback-landing.pages.dev/) — 공개 주소, 실제 이메일은 입력하지 않음
 - [GitHub 저장소](https://github.com/HelloMyMe-M1-2/contest-feedback-landing) — 코드와 문서
-- [PostHog 프로젝트](https://us.posthog.com/project/742481) — 권한이 있는 팀원이 접근, 현재는 로컬 테스트 기록
+- [PostHog 프로젝트](https://us.posthog.com/project/742481) — 권한이 있는 팀원이 접근, 현재는 로컬과 배포 테스트 기록
 
 신청 시트는 개인 Google 계정에 있으며 접근 권한은 담당자가 관리합니다. 실제 신청이나 실험 결과가 쌓였다고 가정하지 않습니다.
