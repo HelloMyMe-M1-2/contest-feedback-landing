@@ -57,7 +57,7 @@ Google 시트가 신청 목록의 유일한 저장소입니다. 기존 D1 초안
 
 ### 로컬에서 서버 함수 확인
 
-개발자는 `npm install` 후 `npm run build`, `npm run dev:pages`를 실행합니다. Wrangler가 빌드된 화면과 Pages Function을 로컬에서 실행합니다. `npm run dev`의 Vite 개발 서버와는 다릅니다. 코드 수정 후에는 빌드를 다시 해야 합니다. 콘솔에 표시된 로컬 주소를 사용하고 실제 신청자 정보는 입력하지 않습니다.
+개발자는 `npm install` 후 `npm run build`, `npm run dev:pages`를 실행합니다. 이 명령은 고정된 버전의 Wrangler를 npm을 통해 실행하며, 처음 실행할 때는 내려받기 위한 네트워크가 필요할 수 있습니다. Wrangler가 빌드된 화면과 Pages Function을 로컬에서 실행합니다. `npm run dev`의 Vite 개발 서버와는 다릅니다. 코드 수정 후에는 빌드를 다시 해야 합니다. 콘솔에 표시된 로컬 주소를 사용하고 실제 신청자 정보는 입력하지 않습니다.
 
 서버 설정은 Git에 포함되지 않는 `.dev.vars`의 `SIGNUP_SCRIPT_URL`과 `SIGNUP_SHARED_SECRET`을 사용합니다. 동일한 비밀값은 Apps Script 스크립트 속성에 설정되어 있습니다. 이 작업 환경에서는 Wrangler가 파일 감시 오류와 내부 요청 오류를 보였고, 신청 요청이 503을 반환했습니다. 반면 같은 함수를 별도 로컬 Node 서버에서 실행하면 시트 저장에 성공했습니다. Wrangler 오류의 정확한 원인은 아직 확인하지 못했으며 Cloudflare 실제 배포 환경에서의 동작은 검증되지 않았습니다. 로컬 테스트가 성공하더라도 Cloudflare에 배포된 것은 아닙니다.
 
