@@ -9,9 +9,9 @@
 | 사전 신청 화면과 시트 | 가상 이메일로 로컬 Node 서버를 거쳐 Google 시트에 저장하고 완료 화면 확인. 테스트 행은 삭제 | Cloudflare에 배포된 서버 함수에서 시트까지 저장되는지 |
 | 신청 함수의 실행 | Cloudflare 로컬 실행기에서 가짜 응답을 이용해 성공·잘못된 출처·잘못된 이메일 처리 확인 | 실제 Google과 Cloudflare 사이의 통신 |
 | PostHog | 로컬 가상 신청의 시작·완료 이벤트 도착 확인. `test_environment: local`로 구분 | 실제 참가자 측정 코드는 미구현. 운영에서 개인정보 설정과 이벤트 도착 확인 필요 |
-| 사이트 | Cloudflare와 GitHub 앱만 연결됨 | 사이트 프로젝트 생성 및 배포. 아직 공개하지 않음 |
+| 사이트 | Cloudflare Pages의 공개 테스트 주소 배포 완료. 현재 시트와는 연결되지 않아 신청을 저장하지 못함 | 실제 참가자 수집 전 서버 연결과 측정·개인정보 설정 검증 |
 
-Cloudflare Pages의 미리보기 주소도 기본적으로 공개입니다. 팀 내부 확인이 필요하면 주소를 만들기 **전** 접근 제한 방법과 적용 범위를 확인합니다. GitHub에 코드를 올린 것만으로 사이트가 배포되지는 않습니다. [Cloudflare 미리보기 안내](https://developers.cloudflare.com/pages/configuration/preview-deployments/)
+Cloudflare Pages의 미리보기 주소도 기본적으로 공개입니다. 현재 테스트 주소는 누구나 열 수 있으며 GitHub `main`의 변경이 자동 배포됩니다. 팀 내부 확인을 위한 제한이 필요하면 별도로 설정해야 합니다. [Cloudflare 미리보기 안내](https://developers.cloudflare.com/pages/configuration/preview-deployments/)
 
 ## Cloudflare 연결을 확인할 때
 
