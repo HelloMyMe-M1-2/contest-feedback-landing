@@ -71,7 +71,7 @@ Google 시트가 신청 목록의 유일한 저장소입니다. 기존 D1 초안
 2. 웹 앱은 **실행 사용자: 나**, **액세스: 모든 사용자**로 배포되어 있습니다. 이는 웹 앱 URL을 아는 사람이 요청을 시도할 수 있다는 뜻이며, 시트 자체를 공개한다는 뜻은 아닙니다. 비밀값이 맞는 요청만 저장하도록 만들었지만 악용을 완전히 막지는 못합니다.
 3. Google 권한 승인 화면에서 범위를 확인합니다. `SpreadsheetApp.openById`는 Google 문서상 스프레드시트 읽기·쓰기 권한을 요청할 수 있습니다. 코드가 특정 시트만 사용하도록 작성됐어도 Google 계정 권한 자체가 그 파일 하나로만 제한된다고 가정하지 않습니다. 웹 앱 실행 시 연결 문서의 활성 시트를 가져오는 방식은 사용할 수 없어 ID로 엽니다. [Google 권한 안내](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openbyidid), [바운드 스크립트의 웹 앱 제약](https://developers.google.com/apps-script/guides/bound#special_methods)
 4. Cloudflare Pages의 **서버 전용** 환경 변수 또는 Secret에 `SIGNUP_SCRIPT_URL`(배포 URL)과 `SIGNUP_SHARED_SECRET`(Apps Script와 같은 값)을 설정합니다. `VITE_` 변수에 넣지 않습니다. 로컬 `.dev.vars`도 Git에서 제외되어야 합니다.
-5. Cloudflare와 실제 웹 앱이 연결된 테스트 환경에서 가상의 이메일로 한 행 저장·성공 화면·PostHog 테스트 이벤트를 확인합니다. 실패 시 성공으로 표시되지 않는지도 확인합니다. 테스트 행 처리, 팀 접근 권한, 개인정보 고지·동의, 서비스 준비 상태는 실제 수집 전에 점검합니다.
+5. Cloudflare와 실제 웹 앱이 연결된 테스트 환경에서 가상의 이메일로 한 행 저장과 성공 화면을 확인합니다. 현재 배포 빌드는 PostHog에 이벤트를 보내지 않으므로 PostHog 배포 환경의 기록은 운영용 전송 구현 후 별도로 검증합니다. 실패 시 성공으로 표시되지 않는지도 확인합니다. 테스트 행 처리, 팀 접근 권한, 개인정보 고지·동의, 서비스 준비 상태는 실제 수집 전에 점검합니다.
 
 개인 키나 실제 신청자 데이터는 저장소에 넣지 않습니다. 앱과 시트의 실제 배포·인증·연결 완료 전에는 코드를 GitHub에 올리는 것만으로 이메일 수집이 시작되지 않습니다.
 
