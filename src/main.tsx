@@ -12,7 +12,7 @@ async function start() {
     return
   }
   let testSink: EventSink | undefined
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV || import.meta.env.VITE_POSTHOG_PREVIEW_ENABLED === 'true') {
     try {
       const { initPosthogTest } = await import('./analytics/posthogTest')
       testSink = initPosthogTest()

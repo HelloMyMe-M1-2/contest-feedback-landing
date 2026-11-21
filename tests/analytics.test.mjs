@@ -5,7 +5,7 @@ import { createTracker } from '../src/analytics/tracker.ts'
 import { shouldEnableLab, shouldShowLabViewer } from '../src/analytics/lab.ts'
 import { isLabMessage, openLabChannel } from '../src/analytics/labChannel.ts'
 import { createVisitClock } from '../src/analytics/visitClock.ts'
-import { canSendPosthogTest, filterPosthogTestEvent, testEventProperties } from '../src/analytics/posthogTestPolicy.ts'
+import { canSendPosthogPreview, canSendPosthogTest, filterPosthogTestEvent, testEventProperties } from '../src/analytics/posthogTestPolicy.ts'
 import { classifyDevice, newlyReachedDepths } from '../src/analytics/pageMetrics.ts'
 
 test('게시글 식별자와 유입 매개변수를 분리하고 소문자로 기록한다', () => {
@@ -124,6 +124,18 @@ test('PostHog 테스트는 개발 환경의 로컬 주소, 두 옵션, 토큰과
     invalid[index] = value
     assert.equal(canSendPosthogTest(...invalid), false)
   }
+})
+
+test('배포 테스트는 활성 설정, 지정된 주소와 명시적 쿼리가 모두 있어야 켜진다', () => {
+  const args = [false, 'true', 'contest-feedback-landing.pages.dev', '?posthog_preview=1', 'phc_test123', 'https://us.i.posthog.com']
+  assert.equal(canSendPosthogPreview(...args), true)
+  for (const [index, value] of [[0, true], [1, 'false'], [2, 'example.com'], [3, ''], [4, ''], [5, 'https://example.com']]) {
+    const invalid = [...args]; invalid[index] = value
+    assert.equal(canSendPosthogPreview(...invalid), false)
+  }
+  const event = { event_name: 'landing_viewed', properties: {}, campaign: { post_id: 'real_value', utm_source: 'real_value', utm_medium: 'real_value', utm_campaign: 'real_value' }, page_view_id: 'page-1', device_category: 'desktop', occurred_at: '2026-01-01', event_schema_version: '2' }
+  assert.equal(testEventProperties(event, 'preview').test_environment, 'preview')
+  assert.equal(testEventProperties(event, 'preview').post_id, 'test_unknown')
 })
 
 test('PostHog 테스트에서는 실제 유입 값을 보내지 않고 불필요한 SDK 속성과 이벤트를 제거한다', () => {

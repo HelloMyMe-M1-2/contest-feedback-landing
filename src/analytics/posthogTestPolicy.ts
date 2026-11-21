@@ -47,13 +47,23 @@ export function canSendPosthogTest(isDevelopment: boolean, hostname: string, sea
     && ['https://us.i.posthog.com', 'https://eu.i.posthog.com'].includes(host)
 }
 
+/** 공개된 테스트 사이트에서 명시적으로 연 개발자 테스트만 허용합니다. */
+export function canSendPosthogPreview(isDevelopment: boolean, enabled: string, hostname: string, search: string, token: string, host: string): boolean {
+  return !isDevelopment
+    && enabled === 'true'
+    && hostname === 'contest-feedback-landing.pages.dev'
+    && new URLSearchParams(search).get('posthog_preview') === '1'
+    && /^phc_[A-Za-z0-9_-]+$/.test(token)
+    && ['https://us.i.posthog.com', 'https://eu.i.posthog.com'].includes(host)
+}
+
 /** 미리 정한 두 게시글만 가상 식별자로 매핑하고 나머지는 unknown으로 보냅니다. */
-export function testEventProperties(event: AnalyticsEvent): Record<string, unknown> {
+export function testEventProperties(event: AnalyticsEvent, environment: 'local' | 'preview' = 'local'): Record<string, unknown> {
   const postId = event.campaign.post_id === 'post_001' ? 'test_post_001'
     : event.campaign.post_id === 'post_002' ? 'test_post_002' : 'test_unknown'
   return {
     ...event.properties,
-    test_environment: 'local',
+    test_environment: environment,
     event_schema_version: event.event_schema_version,
     page_view_id: event.page_view_id,
     device_category: event.device_category,

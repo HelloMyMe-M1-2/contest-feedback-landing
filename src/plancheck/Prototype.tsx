@@ -41,7 +41,8 @@ export default function Prototype({ testSink }: { testSink?: EventSink }) {
   const channel = useRef<BroadcastChannel | null>(null)
   const pageViewed = useRef(false)
   const sampleRef = useRef<HTMLElement | null>(null)
-  const enabled = shouldEnableLab(import.meta.env.DEV, location.hostname, location.search)
+  const labEnabled = shouldEnableLab(import.meta.env.DEV, location.hostname, location.search)
+  const enabled = labEnabled || Boolean(testSink)
   const campaign = useMemo(() => readCampaign(location.search), [])
   const context = useMemo(() => ({ pageViewId: enabled ? crypto.randomUUID() : 'disabled', deviceCategory: enabled ? classifyDevice(navigator.userAgent) : 'unknown' as const }), [enabled])
   const sink = useMemo<EventSink>(() => enabled ? { send(event) { try { channel.current?.postMessage({ type: 'event', event, posthogTestEnabled: Boolean(testSink) }) } catch { /* isolated */ } testSink?.send(event) } } : disabledSink, [enabled,testSink])
@@ -49,7 +50,7 @@ export default function Prototype({ testSink }: { testSink?: EventSink }) {
   useEffect(() => { sampleRef.current = document.querySelector('#viewer .vw-bar') }, [])
   useExposure(sampleRef, 'sample-report-v1', () => tracker.track('sample_report_viewed', { sample_version: '1' }))
   usePageMetrics(enabled, tracker.track)
-  useEffect(() => { if (!enabled) return; channel.current = openLabChannel(); return () => { channel.current?.close(); channel.current = null } }, [enabled])
+  useEffect(() => { if (!labEnabled) return; channel.current = openLabChannel(); return () => { channel.current?.close(); channel.current = null } }, [labEnabled])
   useEffect(() => { if (!pageViewed.current) { pageViewed.current=true; tracker.track('landing_viewed', {}) } }, [tracker])
   useEffect(() => {
     setTarget(document.getElementById('react-signup'))
